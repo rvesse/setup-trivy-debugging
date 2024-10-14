@@ -15,3 +15,4 @@ There are several example workflows in this repository:
   that if called multiple times `trivy` is installed multiple times.
     - There are also variants with `-v0.1.0` and `-v0.2.0` suffixes that test those specific versions of the
       `setup-trivy` action
+    - The `-fixed` suffix demonstrates a proposed fix found in my personal fork of the `setup-trivy` action
