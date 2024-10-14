@@ -1,4 +1,4 @@
-name: Setup Trivy Repeat Installs
+name: Setup Trivy Indirectly
 
 on:
   push:
@@ -18,6 +18,9 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v4
 
+      ## NB - Each call to trivy-action, which is a composite action, calls their setup-trivy action which will install 
+      ##      trivy each time
+
       - name: Trivy Cache
         id: trivy-cache
         uses: yogeshlonkar/trivy-cache-action@v0.1.8
@@ -25,10 +28,11 @@ jobs:
           gh-token: ${{ secrets.GITHUB_TOKEN }}
           prefix: ${{ github.workflow }}
 
-      - name: Download Trivy Java DB
+      - name: Download TrivyDB
         uses: aquasecurity/trivy-action@master
         env:
-          TRIVY_DOWNLOAD_JAVA_DB_ONLY: true
+          TRIVY_DOWNLOAD_DB_ONLY: true
+          TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db
         with:
           scan-type: image
           cache-dir: .trivy
