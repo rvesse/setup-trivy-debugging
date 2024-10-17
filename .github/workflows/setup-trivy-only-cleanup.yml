@@ -1,0 +1,45 @@
+name: Setup Trivy Repeat Installs (With Script Cleanup)
+
+on:
+  push:
+    branches:
+      - "*"
+    tags:
+      - "*"
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        version: [ 'latest', 'v0.56.2', 'v0.55.1']
+        caching: [ true, false ]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      ## NB - Each call to setup-trivy will install trivy each time unless caching is enabled
+
+      - name: Setup Trivy
+        uses: rvesse/setup-trivy@cleanup-checkout
+        with:
+          version: ${{ matrix.version }}
+          cache: ${{ matrix.caching }}
+
+      - name: Setup Trivy Again
+        uses: rvesse/setup-trivy@cleanup-checkout
+        with:
+          version: ${{ matrix.version }}
+          cache: ${{ matrix.caching }}
+
+      - name: Fail if Trivy Installation Script is still present
+        run: |
+          if [ -f "./trivy/contrib/install.sh" ]; then
+            echo "::error::Trivy install.sh still present"
+            exit 1
+          fi
